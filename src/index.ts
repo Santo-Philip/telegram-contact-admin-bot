@@ -16,6 +16,7 @@ export interface Env {
 }
 
 const admin = 1205330781
+const channelId = "@FlareBase";
 
 export default {
   async fetch(
@@ -42,7 +43,7 @@ Feel free to send your message — it will be forwarded to our team.
     reply_markup: {
       inline_keyboard: [
         [
-          { text: "🌐 Source Code", url: "https://github.com/your-repo" },
+          { text: "🌐 Source Code", url: "https://github.com/Santo-Philip/telegram-contact-admin-bot" },
           { text: "📢 Join Our Channel", url: "https://t.me/FlareBase" }
         ]
       ]
@@ -74,6 +75,13 @@ bot.on("message", async (ctx) => {
     const userId = ctx.from?.id;
     if (!userId) return;
     if (userId == admin) return;
+
+    const member = await ctx.api.getChatMember(channelId, userId);
+    if ( member.status === "member" ||
+      member.status === "administrator" ||
+      member.status === "creator") {
+      
+    
     const fullName = `${ctx.from?.first_name || ""} ${ctx.from?.last_name || ""}`.trim();
 
     const forwardedMsg = await ctx.forwardMessage(admin);
@@ -84,9 +92,18 @@ bot.on("message", async (ctx) => {
     });
 
     await ctx.reply("Your message has been forwarded to our admins.");
+  } else {
+     await ctx.reply("❌ You must join our channel to contact the admins.", {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "📢 Join Channel", url: `https://t.me/${channelId.replace('@', '')}` }],
+          ],
+        },
+      });
+  }
   } catch (err) {
     console.error("Error forwarding message:", err);
-    await ctx.reply("Sorry, something went wrong.");
+    await ctx.reply(`Error : ${err}`);
   }
 });
     return webhookCallback(bot, "cloudflare-mod")(request);
